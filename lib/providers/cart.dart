@@ -77,20 +77,23 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
-  // void decreaseQuantity(String productId) {
-  //   if (_items[productId].quantity > 1) {
-  //     _items.update(
-  //         productId,
-  //         (prevItem) => CartItem(
-  //               id: prevItem.id,
-  //               title: prevItem.title,
-  //               price: prevItem.price,
-  //               quantity: prevItem.quantity - 1,
-  //             ));
-  //   }
-  //   else {
-  //     _items.remove(productId);
-  //   }
-  //   notifyListeners();
-  // }
+  void removeSingleItem(String productId) {
+    if(!_items.containsKey(productId)){
+      return;
+    }
+
+    if (_items[productId].quantity > 1) {
+      _items.update(
+          productId,
+          (prevItem) => CartItem(
+                id: prevItem.id,
+                title: prevItem.title,
+                price: prevItem.price,
+                quantity: prevItem.quantity - 1,
+              ));
+    } else {
+      _items.remove(productId);
+    }
+    notifyListeners();
+  }
 }
