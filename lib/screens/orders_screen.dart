@@ -5,14 +5,9 @@ import '../widgets/main_drawer.dart';
 import '../widgets/order_item.dart';
 import '../providers/orders.dart' show Orders;
 
-class OrdersScreen extends StatefulWidget {
+class OrdersScreen extends StatelessWidget {
   static const routeName = '/orders';
 
-  @override
-  _OrdersScreenState createState() => _OrdersScreenState();
-}
-
-class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -20,9 +20,9 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showOnlyFavourites = false;
-  var _isInit = true;
-  var _isLoading = false;
+  // var _isInit = true;
 
+  /*
   @override
   void initState() {
     // if used without listen: false, it won't work.
@@ -61,7 +61,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     //If u are not happy with this then you can use didChangeDependencies lifecycle method, since it runs multiple times remember to run it only once by setting up a boolean.
     super.initState();
   }
-
+  */
   // @override
   // void didChangeDependencies() {
   //   if (_isInit) {
@@ -131,11 +131,25 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
       drawer: MainDrawer(),
       body: RefreshIndicator(
         onRefresh: () => _refreshProducts(context),
-        child: _isLoading
-            ? Center(
+        child: FutureBuilder(
+          future: Provider.of<Products>(context, listen: false)
+              .fetchAndSetProducts(),
+          builder: (ctx, dataSnapshot) {
+            if (dataSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(
                 child: CircularProgressIndicator(),
-              )
-            : ProductsGrid(_showOnlyFavourites),
+              );
+            } else {
+              if (dataSnapshot.error != null) {
+                return Center(
+                  child: Text('An error occured!'),
+                );
+              } else {
+                return ProductsGrid(_showOnlyFavourites);
+              }
+            }
+          },
+        ),
       ),
     );
   }
