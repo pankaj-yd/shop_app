@@ -6,6 +6,7 @@ import '../screens/cart_screen.dart';
 import '../widgets/products_grid.dart';
 import '../widgets/badge.dart';
 import '../providers/cart.dart';
+import '../providers/products.dart';
 
 enum FilterOptions {
   Favourites,
@@ -19,6 +20,67 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showOnlyFavourites = false;
+  var _isInit = true;
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    // if used without listen: false, it won't work.
+    // setState(() {
+    //   _isLoading = true;
+    // });
+
+    // Provider.of<Products>(context, listen: false)
+    //     .fetchAndSetProducts()
+    //     .then((_) {
+    //   setState(() {
+    //     _isLoading = false;
+    //   });
+    // });
+    /*
+    // if you still want to use it then use the following.
+    // of context things dont work in init method but one can use it by replacing the code of provider below. for eg. ModalRoute
+    */
+    Future.delayed(Duration.zero).then((_) {
+      if (_isInit) {
+        setState(() {
+          _isLoading = true;
+        });
+
+        Provider.of<Products>(context, listen: false)
+            .fetchAndSetProducts()
+            .then((_) {
+          setState(() {
+            _isLoading = false;
+          });
+        });
+      }
+      _isInit = false;
+    });
+
+    //If u are not happy with this then you can use didChangeDependencies lifecycle method, since it runs multiple times remember to run it only once by setting up a boolean.
+    super.initState();
+  }
+
+  // @override
+  // void didChangeDependencies() {
+  //   if (_isInit) {
+  //     setState(() {
+  //       _isLoading = true;
+  //     });
+
+  //     Provider.of<Products>(context).fetchAndSetProducts().then((_) {
+  //       setState(() {
+  //         _isLoading = false;
+  //       });
+  //     });
+  //   }
+  //   _isInit = false;
+  //   super.didChangeDependencies();
+  // }
+  Future<void> _refreshProducts(BuildContext context) async {
+    await Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,21 +114,29 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
               ),
             ],
           ),
-          Consumer<Cart>(builder: (_, cart, ch) => Badge(
+          Consumer<Cart>(
+            builder: (_, cart, ch) => Badge(
               child: ch,
               value: cart.itemCount.toString(),
             ),
             child: IconButton(
-                icon: Icon(Icons.shopping_cart),
-                onPressed: (){
-                  Navigator.of(context).pushNamed(CartScreen.routeName); 
-                }, 
-              ),
+              icon: Icon(Icons.shopping_cart),
+              onPressed: () {
+                Navigator.of(context).pushNamed(CartScreen.routeName);
+              },
+            ),
           ),
         ],
       ),
       drawer: MainDrawer(),
-      body: ProductsGrid(_showOnlyFavourites),
+      body: RefreshIndicator(
+        onRefresh: () => _refreshProducts(context),
+        child: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : ProductsGrid(_showOnlyFavourites),
+      ),
     );
   }
 }
