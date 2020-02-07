@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 import '../screens/product_detail_screen.dart';
 import '../providers/product.dart';
 import '../providers/cart.dart';
+import '../providers/auth.dart';
 
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
+    final authData = Provider.of<Auth>(context, listen: false);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -32,7 +34,10 @@ class ProductItem extends StatelessWidget {
               icon: Icon(
                 product.isFavourite ? Icons.favorite : Icons.favorite_border,
               ),
-              onPressed: product.toggleFavourite,
+              onPressed: () => product.toggleFavourite(
+                authData.token,
+                authData.userId,
+              ),
               color: Theme.of(context).accentColor,
             ),
           ),
@@ -58,9 +63,12 @@ class ProductItem extends StatelessWidget {
                   duration: Duration(
                     seconds: 2,
                   ),
-                  action: SnackBarAction(label: 'UNDO', onPressed: () {
-                    cart.removeSingleItem(product.id);
-                  },),
+                  action: SnackBarAction(
+                    label: 'UNDO',
+                    onPressed: () {
+                      cart.removeSingleItem(product.id);
+                    },
+                  ),
                 ),
               );
             },

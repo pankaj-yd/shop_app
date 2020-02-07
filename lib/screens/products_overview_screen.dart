@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/widgets/main_drawer.dart';
+
 
 import '../screens/cart_screen.dart';
 import '../widgets/products_grid.dart';
+import '../widgets/main_drawer.dart';
 import '../widgets/badge.dart';
 import '../providers/cart.dart';
 import '../providers/products.dart';
@@ -14,6 +15,7 @@ enum FilterOptions {
 }
 
 class ProductsOverviewScreen extends StatefulWidget {
+  static const routeName = '/products-main-screen';
   @override
   _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();
 }
