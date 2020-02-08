@@ -21,10 +21,11 @@ class ProductsOverviewScreen extends StatefulWidget {
 }
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
-  bool _showOnlyFavourites = false;
-  // var _isInit = true;
+  var _showOnlyFavourites = false;
+  var _isInit = true;
+  var _isLoading = false;
 
-  /*
+  
   @override
   void initState() {
     // if used without listen: false, it won't work.
@@ -43,46 +44,47 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     // if you still want to use it then use the following.
     // of context things dont work in init method but one can use it by replacing the code of provider below. for eg. ModalRoute
     */
-    Future.delayed(Duration.zero).then((_) {
-      if (_isInit) {
-        setState(() {
-          _isLoading = true;
-        });
+    // Future.delayed(Duration.zero).then((_) {
+    //   if (_isInit) {
+    //     setState(() {
+    //       _isLoading = true;
+    //     });
 
-        Provider.of<Products>(context, listen: false)
-            .fetchAndSetProducts()
-            .then((_) {
-          setState(() {
-            _isLoading = false;
-          });
-        });
-      }
-      _isInit = false;
-    });
+    //     Provider.of<Products>(context, listen: false)
+    //         .fetchAndSetProducts()
+    //         .then((_) {
+    //       setState(() {
+    //         _isLoading = false;
+    //       });
+    //     });
+    //   }
+    //   _isInit = false;
+    // });
 
     //If u are not happy with this then you can use didChangeDependencies lifecycle method, since it runs multiple times remember to run it only once by setting up a boolean.
     super.initState();
   }
-  */
-  // @override
-  // void didChangeDependencies() {
-  //   if (_isInit) {
-  //     setState(() {
-  //       _isLoading = true;
-  //     });
+  
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
 
-  //     Provider.of<Products>(context).fetchAndSetProducts().then((_) {
-  //       setState(() {
-  //         _isLoading = false;
-  //       });
-  //     });
-  //   }
-  //   _isInit = false;
-  //   super.didChangeDependencies();
-  // }
-  Future<void> _refreshProducts(BuildContext context) async {
-    await Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+      Provider.of<Products>(context).fetchAndSetProducts().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
   }
+
+  // Future<void> _refreshProducts(BuildContext context) async {
+  //   await Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -131,28 +133,11 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: MainDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshProducts(context),
-        child: FutureBuilder(
-          future: Provider.of<Products>(context, listen: false)
-              .fetchAndSetProducts(),
-          builder: (ctx, dataSnapshot) {
-            if (dataSnapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              if (dataSnapshot.error != null) {
-                return Center(
-                  child: Text('An error occured!'),
-                );
-              } else {
-                return ProductsGrid(_showOnlyFavourites);
-              }
-            }
-          },
-        ),
-      ),
+      body:  _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(_showOnlyFavourites),
     );
   }
 }
